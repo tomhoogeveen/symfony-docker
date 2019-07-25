@@ -1,0 +1,37 @@
+version: '3'
+services:
+    php:
+        build: php-fpm
+        networks:
+            - web
+            - internal
+        ports:
+            - '9002:9000'
+        volumes:
+            - ../:/var/www/symfony:cached
+            - ./logs/symfony:/var/www/symfony/var/logs:cached
+    nginx:
+        build: nginx
+        ports:
+            - '8888:80'
+        links:
+            - php
+        networks:
+            - web
+            - internal
+        volumes:
+            - ./logs/nginx/:/var/log/nginx:cached
+            - ../:/var/www/symfony:cached
+            - ./logs/symfony:/var/www/symfony/var/logs:cached
+        #optional if you want to use something like traefik
+        # labels:
+        #     - "traefik.enable=true"
+        #     - "traefik.backend=BACKENDNAME"
+        #     - "traefik.frontend.rule=Host:DOMAINNAME"
+        #     - "traefik.port=80"
+        #     - "traefik.basic.protocol=http"
+        #     - "traefik.docker.network=web"
+networks:
+    internal:
+    web:
+        external: true
